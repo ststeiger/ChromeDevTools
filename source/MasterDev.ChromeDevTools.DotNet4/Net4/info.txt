@@ -1,4 +1,10 @@
 ﻿
+https://stackoverflow.com/questions/19423251/async-await-keywords-not-available-in-net-4-0
+Install-Package Microsoft.Bcl.Async
+http://nuget.org/packages/Microsoft.Bcl.Async
+
+
+
 https://stackoverflow.com/questions/10308572/httpclient-does-not-exist-in-net-4-0-what-can-i-do
 I've used HttpClient in .NET 4.0 applications on numerous occasions. 
 Install-Package Microsoft.Net.Http to add it to your project. 
@@ -6,9 +12,5 @@ http://nuget.org/packages/Microsoft.Net.Http
 
 
 
-https://stackoverflow.com/questions/19423251/async-await-keywords-not-available-in-net-4-0
-Install-Package Microsoft.Bcl.Async
-http://nuget.org/packages/Microsoft.Bcl.Async
-
-
+Task.Run()
 https://stackoverflow.com/a/17329540/155077
