@@ -2,11 +2,8 @@
 namespace SampleNet4
 {
 
-
-    class ProcessUtils
+    internal class WindowsProcess
     {
-
-
         // Define an extension method for type System.Process that returns the command 
         // line via WMI.
         public static string GetCommandLine(System.Diagnostics.Process process)
@@ -38,6 +35,9 @@ namespace SampleNet4
             return cmdLine;
         }
 
+
+
+
         /// <summary>
         /// Kill a process, and all of its children, grandchildren, etc.
         /// </summary>
@@ -68,11 +68,6 @@ namespace SampleNet4
         } // End Sub KillProcessAndChildren 
 
 
-        public static void KillProcessAndChildren(System.Diagnostics.Process proc)
-        {
-            KillProcessAndChildren(proc.Id);
-        }
-
 
         // https://stackoverflow.com/questions/5901679/kill-process-tree-programmatically-in-c-sharp
         private static void EndProcessTree(string imageName)
@@ -86,6 +81,63 @@ namespace SampleNet4
             }).WaitForExit();
         } // End Sub EndProcessTree 
 
+    }
+
+
+    internal class UnixProcess
+    {
+
+        public static string GetCommandLine(System.Diagnostics.Process process)
+        {
+            string file = $"/proc/{process.Id}/cmdline";
+            string commandLine = System.IO.File.ReadAllText(file, System.Text.Encoding.UTF8);
+
+            if (string.IsNullOrEmpty(commandLine))
+                return commandLine;
+
+            commandLine = commandLine.Trim('\f', '\v', '\t', ' ', '\r', '\n');
+            return commandLine;
+        }
+
+
+        public static void KillProcessAndChildren(int pid)
+        {
+            // https://stackoverflow.com/questions/392022/whats-the-best-way-to-send-a-signal-to-all-members-of-a-process-group
+            // kill  -TERM -PID
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("kill", $"-TERM -{pid}"));
+        }
+        
+
+    }
+
+
+    class ProcessUtils
+    {
+
+
+        public static string GetCommandLine(System.Diagnostics.Process process)
+        {
+            if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
+                return UnixProcess.GetCommandLine(process);
+            
+            return WindowsProcess.GetCommandLine(process);
+        }
+
+
+        public static void KillProcessAndChildren(int pid)
+        {
+            if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
+                UnixProcess.KillProcessAndChildren(pid);
+            else
+                WindowsProcess.KillProcessAndChildren(pid);
+        }
+
+
+        public static void KillProcessAndChildren(System.Diagnostics.Process proc)
+        {
+            KillProcessAndChildren(proc.Id);
+        }
+        
 
     }
 
