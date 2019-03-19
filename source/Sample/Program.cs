@@ -129,9 +129,6 @@ namespace MasterDevs.ChromeDevTools.Sample
                             System.Console.WriteLine("Screenshot stored");
 
 
-
-
-
                             PrintToPDFCommand printCommand = new PrintToPDFCommand()
                             {
                                 MarginTop = 0,
@@ -149,6 +146,9 @@ namespace MasterDevs.ChromeDevTools.Sample
                             CommandResponse<PrintToPDFCommandResponse> pdf = await chromeSession.SendAsync(printCommand);
                             System.Console.WriteLine("PDF printed.");
 
+                            byte[] pdfData = System.Convert.FromBase64String(pdf.Result.Data);
+                            System.IO.File.WriteAllBytes("output.pdf", pdfData);
+                            System.Console.WriteLine("PDF stored");
 
 
                             // tell the main thread we are done
