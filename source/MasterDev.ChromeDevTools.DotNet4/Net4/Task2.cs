@@ -9,6 +9,17 @@ namespace System.Threading.Tasks
     public class Task2
     {
 
+
+        public async static System.Threading.Tasks.Task Delay(int dueTime)
+        {
+#if DOTNET4
+            await System.Threading.Tasks.TaskEx.Delay(dueTime);
+#else
+            await System.Threading.Tasks.Task.Delay(dueTime);
+#endif
+        }
+
+
         public static System.Threading.Tasks.Task Run(System.Action action
             , System.Threading.CancellationToken cancellationToken)
         {

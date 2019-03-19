@@ -1,13 +1,8 @@
 ﻿
-using MasterDevs.ChromeDevTools.Protocol.Chrome.Page;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using MasterDevs.ChromeDevTools.Protocol.Chrome.DOM;
-
 using MasterDevs.ChromeDevTools;
-
+using MasterDevs.ChromeDevTools.Protocol.Chrome.Page;
+using MasterDevs.ChromeDevTools.Protocol.Chrome.DOM;
+using System.Runtime.InteropServices;
 
 namespace SampleNet4 
 {
@@ -19,7 +14,43 @@ namespace SampleNet4
         const int ViewPortHeight = 900;
 
 
-        [STAThread]
+        public static double cm2inch(double centimeters)
+        {
+            return centimeters * 0.393701;
+        }
+        
+
+        public static void KillHeadless()
+        {
+            System.Diagnostics.Process[] allProcesses = System.Diagnostics.Process.GetProcesses();
+
+            for (int i = 0; i < allProcesses.Length; ++i)
+            {
+                var proc = allProcesses[i];
+                string commandLine = ProcessUtils.GetCommandLine(proc); // GetCommandLineOfProcess(proc);
+
+                if (string.IsNullOrEmpty(commandLine))
+                    continue;
+
+                commandLine = commandLine.ToLowerInvariant();
+
+                if (commandLine.IndexOf(@"\chrome.exe") == -1)
+                    continue;
+
+                if (commandLine.IndexOf(@"--headless") != -1)
+                {
+
+                    System.Console.WriteLine($"Killing process {proc.Id} with command line \"{commandLine}\"");
+                    ProcessUtils.KillProcessAndChildren(proc.Id);
+                }
+
+            } // Next i 
+
+            System.Console.WriteLine($"Finished killing headless chromes");
+        } // End Sub KillHeadless 
+        
+
+        [System.STAThread]
         private static void Main(string[] args)
         {
 #if false
@@ -28,19 +59,26 @@ namespace SampleNet4
             Application.Run(new Form1());
 #endif
 
+            KillHeadless();
+
             System.Threading.Tasks.Task2.Run(async () =>
             {
                 // synchronization
-                var screenshotDone = new ManualResetEventSlim();
+                System.Threading.ManualResetEventSlim screenshotDone = new System.Threading.ManualResetEventSlim();
 
                 // STEP 1 - Run Chrome
-                var chromeProcessFactory = new ChromeProcessFactory(new StubbornDirectoryCleaner());
-                using (var chromeProcess = chromeProcessFactory.Create(9222, true))
+                IChromeProcessFactory chromeProcessFactory = new ChromeProcessFactory(new StubbornDirectoryCleaner());
+                using (IChromeProcess chromeProcess = chromeProcessFactory.Create(9222, true))
                 {
                     // STEP 2 - Create a debugging session
-                    var sessionInfo = (await chromeProcess.GetSessionInfo()).LastOrDefault();
-                    var chromeSessionFactory = new ChromeSessionFactory();
-                    var chromeSession = chromeSessionFactory.Create(sessionInfo.WebSocketDebuggerUrl);
+                    ChromeSessionInfo[] sessionInfos = await chromeProcess.GetSessionInfo();
+
+                    ChromeSessionInfo sessionInfo = (sessionInfos != null && sessionInfos.Length > 0) ? 
+                          sessionInfos[sessionInfos.Length - 1] 
+                        : new ChromeSessionInfo();
+
+                    IChromeSessionFactory chromeSessionFactory = new ChromeSessionFactory();
+                    IChromeSession chromeSession = chromeSessionFactory.Create(sessionInfo.WebSocketDebuggerUrl);
 
                     // STEP 3 - Send a command
                     //
@@ -53,34 +91,35 @@ namespace SampleNet4
                         Scale = 1
                     });
 
-                    var navigateResponse = await chromeSession.SendAsync(new NavigateCommand
+                    CommandResponse<NavigateCommandResponse> navigateResponse = await chromeSession.SendAsync(new NavigateCommand
                     {
                         Url = "http://www.google.com"
                     });
-                    Console.WriteLine("NavigateResponse: " + navigateResponse.Id);
+                    System.Console.WriteLine("NavigateResponse: " + navigateResponse.Id);
 
                     // STEP 4 - Register for events (in this case, "Page" domain events)
                     // send an command to tell chrome to send us all Page events
                     // but we only subscribe to certain events in this session
 
-                    var pageEnableResult = await chromeSession.SendAsync<MasterDevs.ChromeDevTools.Protocol.Chrome.Page.EnableCommand>();
-                    Console.WriteLine("PageEnable: " + pageEnableResult.Id);
+                    ICommandResponse pageEnableResult = await chromeSession.SendAsync<MasterDevs.ChromeDevTools.Protocol.Chrome.Page.EnableCommand>();
+                    System.Console.WriteLine("PageEnable: " + pageEnableResult.Id);
 
                     chromeSession.Subscribe<LoadEventFiredEvent>(loadEventFired =>
                     {
                         // we cannot block in event handler, hence the task
                         System.Threading.Tasks.Task2.Run(async () =>
                         {
-                            Console.WriteLine("LoadEventFiredEvent: " + loadEventFired.Timestamp);
+                            System.Console.WriteLine("LoadEventFiredEvent: " + loadEventFired.Timestamp);
 
-                            var documentNodeId = (await chromeSession.SendAsync(new GetDocumentCommand())).Result.Root.NodeId;
-                            var bodyNodeId =
+                            long documentNodeId = (await chromeSession.SendAsync(new GetDocumentCommand())).Result.Root.NodeId;
+                            long bodyNodeId =
                                 (await chromeSession.SendAsync(new QuerySelectorCommand
                                 {
                                     NodeId = documentNodeId,
                                     Selector = "body"
                                 })).Result.NodeId;
-                            var height = (await chromeSession.SendAsync(new GetBoxModelCommand { NodeId = bodyNodeId })).Result.Model.Height;
+
+                            long height = (await chromeSession.SendAsync(new GetBoxModelCommand { NodeId = bodyNodeId })).Result.Model.Height;
 
                             await chromeSession.SendAsync(new SetDeviceMetricsOverrideCommand
                             {
@@ -89,12 +128,40 @@ namespace SampleNet4
                                 Scale = 1
                             });
 
-                            Console.WriteLine("Taking screenshot");
-                            var screenshot = await chromeSession.SendAsync(new CaptureScreenshotCommand { Format = "png" });
+                            
+                            System.Console.WriteLine("Taking screenshot");
+                            CommandResponse<CaptureScreenshotCommandResponse> screenshot =
+                                await chromeSession.SendAsync(new CaptureScreenshotCommand { Format = "png" });
+                            System.Console.WriteLine("Screenshot taken.");
 
-                            var data = Convert.FromBase64String(screenshot.Result.Data);
-                            File.WriteAllBytes("output.png", data);
-                            Console.WriteLine("Screenshot stored");
+
+                            byte[] screenshotData = System.Convert.FromBase64String(screenshot.Result.Data);
+                            System.IO.File.WriteAllBytes("output.png", screenshotData);
+                            System.Console.WriteLine("Screenshot stored");
+                            
+
+
+                            PrintToPDFCommand printCommand = new PrintToPDFCommand()
+                            {
+                                MarginTop = 0,
+                                MarginLeft = 0,
+                                MarginRight = 0,
+                                MarginBottom = 0,
+                                PrintBackground = true,
+                                Landscape = false,
+                                PaperWidth = cm2inch(21),
+                                PaperHeight = cm2inch(29.7)
+                            };
+
+                            await System.Threading.Tasks.Task2.Delay(300);
+
+
+                            System.Console.WriteLine("Printing PDF");
+                            CommandResponse<PrintToPDFCommandResponse> pdf = await chromeSession.SendAsync(printCommand );
+                            System.Console.WriteLine("PDF printed.");
+
+                            byte[] pdfData = System.Convert.FromBase64String(pdf.Result.Data);
+                            System.IO.File.WriteAllBytes("output.pdf", pdfData);
 
                             // tell the main thread we are done
                             screenshotDone.Set();
@@ -104,9 +171,13 @@ namespace SampleNet4
                     // wait for screenshoting thread to (start and) finish
                     screenshotDone.Wait();
 
-                    Console.WriteLine("Exiting ..");
+                    System.Console.WriteLine("Exiting ..");
                 }
             }).Wait();
-        }
-    }
-}
+        } // End Sub Main(string[] args) 
+
+
+    } // End Class Program 
+
+
+} // End Namespace SampleNet4 
