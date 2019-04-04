@@ -143,7 +143,7 @@ namespace SampleNet4
 
                             PrintToPDFCommand printCommand = new PrintToPDFCommand()
                             {
-                                // Scale = 1,
+                                Scale = 1,
                                 MarginTop = 0,
                                 MarginLeft = 0,
                                 MarginRight = 0,
