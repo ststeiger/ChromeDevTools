@@ -131,6 +131,7 @@ namespace MasterDevs.ChromeDevTools.Sample
 
                             PrintToPDFCommand printCommand = new PrintToPDFCommand()
                             {
+                                Scale = 1,
                                 MarginTop = 0,
                                 MarginLeft = 0,
                                 MarginRight = 0,
@@ -157,9 +158,8 @@ namespace MasterDevs.ChromeDevTools.Sample
                     });
 
                     // wait for screenshoting thread to (start and) finish
-                    screenshotDone.Wait();
-
                     System.Console.WriteLine("Exiting ..");
+                    screenshotDone.Wait();
                 }
             }).Wait();
         }

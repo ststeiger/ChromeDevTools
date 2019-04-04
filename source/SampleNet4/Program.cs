@@ -128,7 +128,7 @@ namespace SampleNet4
                                 Scale = 1
                             });
 
-                            
+                            /*
                             System.Console.WriteLine("Taking screenshot");
                             CommandResponse<CaptureScreenshotCommandResponse> screenshot =
                                 await chromeSession.SendAsync(new CaptureScreenshotCommand { Format = "png" });
@@ -138,11 +138,12 @@ namespace SampleNet4
                             byte[] screenshotData = System.Convert.FromBase64String(screenshot.Result.Data);
                             System.IO.File.WriteAllBytes("output.png", screenshotData);
                             System.Console.WriteLine("Screenshot stored");
-                            
+                            */
 
 
                             PrintToPDFCommand printCommand = new PrintToPDFCommand()
                             {
+                                // Scale = 1,
                                 MarginTop = 0,
                                 MarginLeft = 0,
                                 MarginRight = 0,
@@ -150,18 +151,27 @@ namespace SampleNet4
                                 PrintBackground = true,
                                 Landscape = false,
                                 PaperWidth = cm2inch(21),
-                                PaperHeight = cm2inch(29.7)
+                                PaperHeight = cm2inch(29.7),
                             };
 
                             await System.Threading.Tasks.Task2.Delay(300);
 
 
-                            System.Console.WriteLine("Printing PDF");
-                            CommandResponse<PrintToPDFCommandResponse> pdf = await chromeSession.SendAsync(printCommand );
-                            System.Console.WriteLine("PDF printed.");
 
-                            byte[] pdfData = System.Convert.FromBase64String(pdf.Result.Data);
-                            System.IO.File.WriteAllBytes("output.pdf", pdfData);
+                            try
+                            {
+                                System.Console.WriteLine("Printing PDF");
+                                CommandResponse<PrintToPDFCommandResponse> pdf = await chromeSession.SendAsync(printCommand);
+                                System.Console.WriteLine("PDF printed.");
+
+                                byte[] pdfData = System.Convert.FromBase64String(pdf.Result.Data);
+                                System.IO.File.WriteAllBytes("output.pdf", pdfData);
+                            }
+                            catch (System.Exception ex)
+                            {
+                                System.Console.WriteLine(ex.Message);
+                            }
+                            
 
                             // tell the main thread we are done
                             screenshotDone.Set();

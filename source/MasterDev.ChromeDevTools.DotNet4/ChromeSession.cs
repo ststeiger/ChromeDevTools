@@ -90,13 +90,98 @@ namespace MasterDevs.ChromeDevTools
 
         private Task<TDerived> CastTaskResult<TBase, TDerived>(Task<TBase> task) where TDerived: TBase
         {
-            var tcs = new TaskCompletionSource<TDerived>();
-            task.ContinueWith(t => tcs.SetResult((TDerived)t.Result),
-                TaskContinuationOptions.OnlyOnRanToCompletion);
-            task.ContinueWith(t => tcs.SetException(t.Exception.InnerExceptions),
-                TaskContinuationOptions.OnlyOnFaulted);
-            task.ContinueWith(t => tcs.SetCanceled(),
-                TaskContinuationOptions.OnlyOnCanceled);
+            TaskCompletionSource<TDerived> tcs = new TaskCompletionSource<TDerived>();
+            task.ContinueWith(
+                // t => tcs.SetResult((TDerived)t.Result)
+                delegate (Task<TBase> t) 
+                {
+                    try
+                    {
+                        TDerived res = (TDerived)t.Result;
+                        tcs.SetResult(res);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        ErrorResponse error = t.Result as ErrorResponse;
+
+                        if (error != null)
+                        {
+                            string errorMessage = "";
+
+                            try
+                            {
+                                errorMessage += "Id " + System.Convert.ToString(error.Id, System.Globalization.CultureInfo.InvariantCulture) + System.Environment.NewLine;
+                            }
+                            catch
+                            { }
+
+
+                            try
+                            {
+                                errorMessage += "Error " + System.Convert.ToString(error.Error.Code, System.Globalization.CultureInfo.InvariantCulture) + System.Environment.NewLine;
+                            }
+                            catch
+                            { }
+
+
+                            try
+                            {
+                                errorMessage += error.Error.Message + System.Environment.NewLine;
+                            }
+                            catch
+                            { }
+
+
+                            try
+                            {
+                                errorMessage += error.Method;
+                            }
+                            catch
+                            { }
+
+
+                            tcs.SetException( new Exception(errorMessage, ex) );
+                        }
+                        else
+                            tcs.SetException(ex);
+                    }
+                }, TaskContinuationOptions.OnlyOnRanToCompletion
+            );
+
+            task.ContinueWith(
+                    // t => tcs.SetException(t.Exception.InnerExceptions)
+                    delegate (Task<TBase> t) 
+                    {
+                        try
+                        {
+                            tcs.SetException(t.Exception.InnerExceptions);
+                        }
+                        catch (System.Exception ex)
+                        {
+                            tcs.SetException(ex);
+                        }
+
+
+                    }
+                    ,TaskContinuationOptions.OnlyOnFaulted
+            );
+
+            task.ContinueWith(
+                    // t => tcs.SetCanceled()
+                    delegate (Task<TBase> t)
+                    {
+                        try
+                        {
+                            tcs.SetCanceled();
+                        }
+                        catch (System.Exception ex)
+                        {
+                            tcs.SetException(ex);
+                        }
+                    }
+                , TaskContinuationOptions.OnlyOnCanceled
+            );
+
             return tcs.Task;
         }
 
