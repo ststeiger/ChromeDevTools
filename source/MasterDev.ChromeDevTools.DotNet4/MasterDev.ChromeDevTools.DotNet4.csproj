@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChromeProcessFactory.cs" />
+    <Compile Include="ChromeProcessFactoryHelper.cs" />
     <Compile Include="ChromeSession.cs" />
     <Compile Include="ChromeSessionExtensions.cs" />
     <Compile Include="ChromeSessionFactory.cs" />

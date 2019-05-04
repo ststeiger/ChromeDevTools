@@ -51,7 +51,7 @@ namespace SampleNet4
         
 
         [System.STAThread]
-        private static void Main(string[] args)
+        private static void NotMain(string[] args)
         {
 #if false
             Application.EnableVisualStyles();
@@ -80,6 +80,10 @@ namespace SampleNet4
                     IChromeSessionFactory chromeSessionFactory = new ChromeSessionFactory();
                     IChromeSession chromeSession = chromeSessionFactory.Create(sessionInfo.WebSocketDebuggerUrl);
 
+
+
+
+
                     // STEP 3 - Send a command
                     //
                     // Here we are sending a commands to tell chrome to set the viewport size 
@@ -91,11 +95,89 @@ namespace SampleNet4
                         Scale = 1
                     });
 
+
+
+
+                    
                     CommandResponse<NavigateCommandResponse> navigateResponse = await chromeSession.SendAsync(new NavigateCommand
                     {
-                        Url = "http://www.google.com"
+                        // Url = "http://www.google.com"
+                        Url = "about:blank"
                     });
                     System.Console.WriteLine("NavigateResponse: " + navigateResponse.Id);
+
+                    CommandResponse<SetDocumentContentCommandResponse> setContentResponse = await chromeSession.SendAsync(new SetDocumentContentCommand()
+                    {
+                        FrameId = navigateResponse.Result.FrameId,
+                        Html = @"<!doctype html>
+<html lang=""en"">
+<head>
+	<meta charset=""utf-8"">
+<title>your title here</title>
+</head>
+<body bgcolor=""ffffff"">
+<center><img src=""clouds.jpg"" align=""bottom""> </center>
+
+<hr>
+<a href=""http://somegreatsite.com"">link name</a>
+is a link to another nifty site
+<h1>this is a header</h1>
+<h2>this is a medium header</h2>
+send me mail at <a href=""mailto:support@yourcompany.com"">
+support@yourcompany.com</a>.
+<p> this is a new paragraph!
+<p> <b>this is a new paragraph!</b>
+<br /> <b><i>this is a new sentence without a paragraph break, in bold italics.</i></b>
+<hr>
+</body>
+</html>
+" }
+                    );
+
+
+                    PrintToPDFCommand printCommand2 = new PrintToPDFCommand()
+                    {
+                        Scale = 1,
+                        MarginTop = 0,
+                        MarginLeft = 0,
+                        MarginRight = 0,
+                        MarginBottom = 0,
+                        PrintBackground = true,
+                        Landscape = false,
+                        PaperWidth = cm2inch(21),
+                        PaperHeight = cm2inch(29.7),
+                    };
+
+                    await System.Threading.Tasks.Task2.Delay(300);
+
+
+
+                    try
+                    {
+                        System.Console.WriteLine("Printing PDF");
+                        CommandResponse<PrintToPDFCommandResponse> pdf = await chromeSession.SendAsync(printCommand2);
+                        System.Console.WriteLine("PDF printed.");
+
+                        byte[] pdfData = System.Convert.FromBase64String(pdf.Result.Data);
+                        System.IO.File.WriteAllBytes("output.pdf", pdfData);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        System.Console.WriteLine(ex.Message);
+                    }
+
+
+                    System.Console.WriteLine("Taking screenshot");
+                    CommandResponse<CaptureScreenshotCommandResponse> screenshot =
+                        await chromeSession.SendAsync(new CaptureScreenshotCommand { Format = "png" });
+                    System.Console.WriteLine("Screenshot taken.");
+
+
+                    byte[] screenshotData = System.Convert.FromBase64String(screenshot.Result.Data);
+                    System.IO.File.WriteAllBytes("output.png", screenshotData);
+                    System.Console.WriteLine("Screenshot stored");
+
+
 
                     // STEP 4 - Register for events (in this case, "Page" domain events)
                     // send an command to tell chrome to send us all Page events

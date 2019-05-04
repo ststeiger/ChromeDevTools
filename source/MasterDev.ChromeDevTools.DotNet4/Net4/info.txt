@@ -1,16 +1,61 @@
 ﻿
-https://stackoverflow.com/questions/19423251/async-await-keywords-not-available-in-net-4-0
-Install-Package Microsoft.Bcl.Async
-http://nuget.org/packages/Microsoft.Bcl.Async
 
+Headless Chrome:
+https://chromium.googlesource.com/chromium/src/+/lkgr/headless/README.md
+https://developer.chrome.com/devtools/docs/integrating
+
+
+
+Windows 7, 8.1, and 10: C:\Users\<username>\AppData\Local\Google\Chrome\User Data\Default
+Mac OS X El Capitan: Users/<username>/Library/Application Support/Google/Chrome/Default
+Linux: /home/<username>/.config/google-chrome/default
+
+
+
+
+Old versions of Chrome/Chromium: (Show More)
+https://chocolatey.org/packages/GoogleChrome
+https://chocolatey.org/packages/Chromium/
+
+
+Chrome Driver C#
+https://github.com/MasterDevs/ChromeDevTools
+
+Chrome Driver backport C# .NET 4.0 
+„Zu Risiken und Nebenwirkungen lesen Sie die Packungsbeilage und fragen Sie Ihren Arzt oder Apotheker“ 
+„Zu den riesigen Nebenwirkungen fressen sie die Packungsbeilage und erschlagen Sie den irren Arzt ihres Apothekers“) i
+https://github.com/ststeiger/ChromeDevTools
+
+
+
+==================================================================
+These are the nuget dependencies for ChromeDevTools: 
+==================================================================
+
+
+https://stackoverflow.com/questions/19423251/async-await-keywords-not-available-in-net-4-0
+This package enables Visual Studio 2012 projects to use the new 'async' and 'await' keywords. 
+Install-Package Microsoft.Bcl.Async -Version 1.0.168
+http://nuget.org/packages/Microsoft.Bcl.Async
 
 
 https://stackoverflow.com/questions/10308572/httpclient-does-not-exist-in-net-4-0-what-can-i-do
 I've used HttpClient in .NET 4.0 applications on numerous occasions. 
-Install-Package Microsoft.Net.Http to add it to your project. 
+Install-Package Microsoft.Net.Http -Version 2.2.29
 http://nuget.org/packages/Microsoft.Net.Http
+
+
+https://github.com/kerryjiang/WebSocket4Net
+https://github.com/kerryjiang/SuperWebSocket
+WebSocket4Net provides websocket client implementation for many different kinds of runtime:
+Install-Package WebSocket4Net -Version 0.15.2
+https://www.nuget.org/packages/WebSocket4Net/
+
+
 
 
 
 Task.Run()
 https://stackoverflow.com/a/17329540/155077
+
+
