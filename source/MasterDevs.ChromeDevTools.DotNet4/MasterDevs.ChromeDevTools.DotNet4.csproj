@@ -7,8 +7,8 @@
     <ProjectGuid>{BD00C2F1-5909-43CC-9DD1-3DA587695B87}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MasterDev.ChromeDevTools.DotNet4</RootNamespace>
-    <AssemblyName>MasterDev.ChromeDevTools.DotNet4</AssemblyName>
+    <RootNamespace>MasterDev.ChromeDevTools</RootNamespace>
+    <AssemblyName>MasterDevs.ChromeDevTools</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
