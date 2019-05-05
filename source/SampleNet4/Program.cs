@@ -16,7 +16,27 @@ namespace SampleNet4
         private delegate double UnitConversion_t(double value);
         const int ViewPortWidth = 1440;
         const int ViewPortHeight = 900;
-        
+
+
+
+        public static bool IsAdministrator
+        {
+            get
+            {
+
+
+                // return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
+                if (System.Environment.OSVersion.Platform != System.PlatformID.Unix)
+                {
+                    return new System.Security.Principal.WindowsPrincipal(System.Security.Principal.WindowsIdentity.GetCurrent())
+                       .IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+                }
+
+                // Mono.Posix.NETStandard
+                // return Mono.Unix.Native.Syscall.geteuid() == 0;
+                return false;
+            }
+        }
 
 
         [System.STAThread]
