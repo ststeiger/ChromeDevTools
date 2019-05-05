@@ -39,11 +39,10 @@ namespace Portal_Convert.CdpConverter
                         System.Console.WriteLine(ex.Message);
                         System.Threading.Thread.Sleep(500);
                         System.Console.WriteLine("Repeat");
-                    }
-                }
+                    } // End Catch 
+                } // Whend 
 
-            }
-            );
+            });
 
         } // End Sub Delete 
 
