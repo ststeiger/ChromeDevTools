@@ -23,9 +23,23 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+[Ll]og/
 
 # Visual Studo 2015 cache/options directory
 .vs/
+
+#JetBrais Rider
+.idea/
+*.sln.iml
+
+
+# FAKE - F# Make
+.fake/
+
+
+# Dolphin
+.directory
+
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -188,6 +202,10 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+
+# Visual Studio Code 
+.[Vv][Ss][Cc][Oo][Dd][Ee]/
+
 
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat

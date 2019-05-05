@@ -33,9 +33,7 @@ namespace SampleNet4
             }
             */
             return cmdLine;
-        }
-
-
+        } // End Function GetCommandLine 
 
 
         /// <summary>
@@ -49,13 +47,16 @@ namespace SampleNet4
             {
                 return;
             }
+
             System.Management.ManagementObjectSearcher searcher = new System.Management.ManagementObjectSearcher
                     ("Select * From Win32_Process Where ParentProcessID=" + pid);
+
             System.Management.ManagementObjectCollection moc = searcher.Get();
             foreach (System.Management.ManagementObject mo in moc)
             {
                 KillProcessAndChildren(System.Convert.ToInt32(mo["ProcessID"]));
             }
+
             try
             {
                 System.Diagnostics.Process proc = System.Diagnostics.Process.GetProcessById(pid);
@@ -65,8 +66,8 @@ namespace SampleNet4
             {
                 // Process already exited.
             }
-        } // End Sub KillProcessAndChildren 
 
+        } // End Sub KillProcessAndChildren 
 
 
         // https://stackoverflow.com/questions/5901679/kill-process-tree-programmatically-in-c-sharp
@@ -81,23 +82,30 @@ namespace SampleNet4
             }).WaitForExit();
         } // End Sub EndProcessTree 
 
-    }
+
+    } // End Class WindowsProcess
 
 
     internal class UnixProcess
     {
 
+
         public static string GetCommandLine(System.Diagnostics.Process process)
         {
             string file = $"/proc/{process.Id}/cmdline";
+
+            if (!System.IO.File.Exists(file))
+                return "";
+
             string commandLine = System.IO.File.ReadAllText(file, System.Text.Encoding.UTF8);
 
             if (string.IsNullOrEmpty(commandLine))
                 return commandLine;
 
+            commandLine = commandLine.Replace((char)0, ' ');
             commandLine = commandLine.Trim('\f', '\v', '\t', ' ', '\r', '\n');
             return commandLine;
-        }
+        } // End Function GetCommandLine 
 
 
         public static void KillProcessAndChildren(int pid)
@@ -105,13 +113,13 @@ namespace SampleNet4
             // https://stackoverflow.com/questions/392022/whats-the-best-way-to-send-a-signal-to-all-members-of-a-process-group
             // kill  -TERM -PID
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("kill", $"-TERM -{pid}"));
-        }
-        
-
-    }
+        } // End Sub KillProcessAndChildren 
 
 
-    class ProcessUtils
+    } // End Class UnixProcess
+
+
+    internal class ProcessUtils
     {
 
 
@@ -121,7 +129,7 @@ namespace SampleNet4
                 return UnixProcess.GetCommandLine(process);
             
             return WindowsProcess.GetCommandLine(process);
-        }
+        } // End Function GetCommandLine
 
 
         public static void KillProcessAndChildren(int pid)
@@ -130,16 +138,16 @@ namespace SampleNet4
                 UnixProcess.KillProcessAndChildren(pid);
             else
                 WindowsProcess.KillProcessAndChildren(pid);
-        }
+        } // End Sub KillProcessAndChildren 
 
 
         public static void KillProcessAndChildren(System.Diagnostics.Process proc)
         {
             KillProcessAndChildren(proc.Id);
-        }
-        
-
-    }
+        } // End Sub KillProcessAndChildren 
 
 
-}
+    } // End Class ProcessUtils
+
+
+} // End Namespace SampleNet4 

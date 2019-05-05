@@ -4,7 +4,7 @@ using MasterDevs.ChromeDevTools.Protocol.Chrome.Page;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.Target;
 // using MasterDevs.ChromeDevTools.Protocol.Chrome.DOM;
 
- 
+
 namespace SampleNet4
 {
 
@@ -17,9 +17,17 @@ namespace SampleNet4
         {
             System.Diagnostics.Process[] allProcesses = System.Diagnostics.Process.GetProcesses();
 
+            string exeName = @"\chrome.exe";
+
+            if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
+            {
+                exeName = "/chrome";
+            } // End if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
+
+
             for (int i = 0; i < allProcesses.Length; ++i)
             {
-                var proc = allProcesses[i];
+                System.Diagnostics.Process proc = allProcesses[i];
                 string commandLine = ProcessUtils.GetCommandLine(proc); // GetCommandLineOfProcess(proc);
 
                 if (string.IsNullOrEmpty(commandLine))
@@ -27,15 +35,14 @@ namespace SampleNet4
 
                 commandLine = commandLine.ToLowerInvariant();
 
-                if (commandLine.IndexOf(@"\chrome.exe") == -1)
+                if (commandLine.IndexOf(exeName, System.StringComparison.InvariantCultureIgnoreCase) == -1)
                     continue;
 
-                if (commandLine.IndexOf(@"--headless") != -1)
+                if (commandLine.IndexOf(@"--headless", System.StringComparison.InvariantCultureIgnoreCase) != -1)
                 {
-
                     System.Console.WriteLine($"Killing process {proc.Id} with command line \"{commandLine}\"");
                     ProcessUtils.KillProcessAndChildren(proc.Id);
-                }
+                } // End if (commandLine.IndexOf(@"--headless") != -1)
 
             } // Next i 
 
@@ -46,6 +53,7 @@ namespace SampleNet4
         [System.STAThread]
         private static void Main(string[] args)
         {
+            // Trash.Piping.ReadLibs();
             KillHeadless();
 
 
@@ -61,6 +69,9 @@ namespace SampleNet4
             conversionData.ViewPortWidth = 264;
             conversionData.ViewPortHeight = 116;
 
+            System.Console.WriteLine(conversionData.ChromePath);
+
+
 
             AsyncMain(conversionData).Wait();
 
@@ -70,9 +81,7 @@ namespace SampleNet4
             System.Console.WriteLine(System.Environment.NewLine);
             System.Console.WriteLine(" --- Press any key to continue --- ");
             System.Console.ReadKey();
-        }
-
-
+        } // End Sub Main 
 
 
         public class FastStubbornDirectoryCleaner 
@@ -164,7 +173,7 @@ namespace SampleNet4
         } // End Function InternalConnect 
         
 
-        public static async System.Threading.Tasks.Task<ConnectionInfo> ConnectToChrome(string remoteDebuggingUri)
+        public static async System.Threading.Tasks.Task<ConnectionInfo> ConnectToChrome(string chromePath, string remoteDebuggingUri)
         {
             ConnectionInfo ci = new ConnectionInfo();
 
@@ -176,8 +185,8 @@ namespace SampleNet4
             {
                 System.Console.WriteLine(ex.Message);
                 System.Console.WriteLine(ex.GetType().FullName);
+                System.Console.WriteLine(chromePath);
 
-                string chromePath = @"D:\Stefan.Steiger\Documents\Visual Studio 2017\TFS\COR-Basic-V4\Portal\Portal_Convert\External\Chromium\chrome.exe";
 
                 MasterDevs.ChromeDevTools.IChromeProcessFactory chromeProcessFactory =
                         new MasterDevs.ChromeDevTools.ChromeProcessFactory(new FastStubbornDirectoryCleaner(), chromePath);
@@ -237,6 +246,7 @@ namespace SampleNet4
             public byte[] PngData { get; set; }
             public byte[] PdfData { get; set; }
 
+            private  object s_changeLock = new object();
 
             public string ChromePath
             {
@@ -245,7 +255,7 @@ namespace SampleNet4
                     if (!string.IsNullOrEmpty(s_chromePath))
                         return s_chromePath;
 
-                    lock (s_chromePath)
+                    lock (s_changeLock)
                     { 
                         // "~/External/Chromium/x86-" + (System.IntPtr.Size * 8).ToString()
                         if (System.Web.Hosting.HostingEnvironment.IsHosted)
@@ -254,7 +264,7 @@ namespace SampleNet4
                             );
                         else
                             s_chromePath = ChromeProcessFactoryHelper.DefaultChromePath;
-                    } // End lock (s_chromePath) 
+                    } // End lock (s_changeLock) 
 
                     return s_chromePath;
                 }
@@ -291,8 +301,7 @@ namespace SampleNet4
             string rcp = "http://localhost:9222";
             MasterDevs.ChromeDevTools.IChromeSessionFactory chromeSessionFactory = new MasterDevs.ChromeDevTools.ChromeSessionFactory();
 
-
-            using (ConnectionInfo connectionInfo = await ConnectToChrome(rcp) )
+            using (ConnectionInfo connectionInfo = await ConnectToChrome(conversionData.ChromePath, rcp) )
             {
                 MasterDevs.ChromeDevTools.IChromeSession chromeSession = chromeSessionFactory.Create(connectionInfo.SessionInfo.WebSocketDebuggerUrl);
 
