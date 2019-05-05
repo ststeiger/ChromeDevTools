@@ -182,8 +182,11 @@ namespace Portal_Convert.CdpConverter
                     // PaperWidth = cm2inch(21),
                     // PaperHeight = cm2inch(29.7),
 
-                    PaperWidth = cm2inch(conversionData.PageWidth),
-                    PaperHeight = cm2inch(conversionData.PageHeight)
+                    // PaperWidth = cm2inch(conversionData.PageWidth),
+                    // PaperHeight = cm2inch(conversionData.PageHeight)
+
+                    PaperWidth = mm2inch(conversionData.PageWidth),
+                    PaperHeight = mm2inch(conversionData.PageHeight)
                 };
 
                 // await System.Threading.Tasks.Task2.Delay(300);

@@ -102,6 +102,10 @@ Namespace Portal_Convert.CdpConverter
                 })
                 Dim cm2inch As UnitConversion_t = Function(ByVal centimeters As Double) centimeters * 0.393701
                 Dim mm2inch As UnitConversion_t = Function(ByVal milimeters As Double) milimeters * 0.0393701
+
+                ' .PaperWidth = cm2inch(conversionData.PageWidth),
+                ' .PaperHeight = cm2inch(conversionData.PageHeight)
+
                 Dim printCommand2 As PrintToPDFCommand = New PrintToPDFCommand() With {
                     .Scale = 1,
                     .MarginTop = 0,
@@ -110,8 +114,8 @@ Namespace Portal_Convert.CdpConverter
                     .MarginBottom = 0,
                     .PrintBackground = True,
                     .Landscape = False,
-                    .PaperWidth = cm2inch(conversionData.PageWidth),
-                    .PaperHeight = cm2inch(conversionData.PageHeight)
+                    .PaperWidth = mm2inch(conversionData.PageWidth),
+                    .PaperHeight = mm2inch(conversionData.PageHeight)
                 }
 
                 If conversionData.ChromiumActions.HasFlag(ChromiumActions_t.GetVersion) Then
