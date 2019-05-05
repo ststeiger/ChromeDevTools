@@ -3,6 +3,15 @@ namespace MasterDevs.ChromeDevTools
 {
 
 
+    internal class UnsafeNativeMethods
+    {
+        internal const string LIBC = "libc";
+
+        [System.Runtime.InteropServices.DllImport(LIBC, SetLastError = true)]
+        public static extern uint geteuid();
+    }
+
+
     public class ChromeProcessFactory : IChromeProcessFactory
     {
         public IDirectoryCleaner DirectoryCleaner { get; set; }
@@ -19,6 +28,21 @@ namespace MasterDevs.ChromeDevTools
         public ChromeProcessFactory(IDirectoryCleaner directoryCleaner)
             :this(directoryCleaner, ChromeProcessFactoryHelper.DefaultChromePath)
         { }
+
+
+
+
+        public static bool IsRoot
+        {
+            get
+            {
+                // return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
+                if (System.Environment.OSVersion.Platform != System.PlatformID.Unix)
+                    return false;
+
+                return UnsafeNativeMethods.geteuid() == 0;
+            }
+        }
 
 
         public IChromeProcess Create(int port, bool headless)
@@ -47,6 +71,9 @@ namespace MasterDevs.ChromeDevTools
 
             if (headless)
                 chromeProcessArgs.Add(headlessArg);
+
+            if(IsRoot)
+                chromeProcessArgs.Add("--no-sandbox");
 
             System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo(ChromePath, string.Join(" ", chromeProcessArgs));
             System.Diagnostics.Process chromeProcess = System.Diagnostics.Process.Start(processStartInfo);
