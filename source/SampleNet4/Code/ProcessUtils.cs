@@ -1,5 +1,5 @@
 ﻿
-namespace SampleNet4
+namespace Portal_Convert.CdpConverter
 {
 
     internal class WindowsProcess

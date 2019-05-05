@@ -2,53 +2,22 @@
 using MasterDevs.ChromeDevTools;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.Page;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.DOM;
-using System.Runtime.InteropServices;
+
 
 namespace SampleNet4 
 {
 
+    
+
 
     internal class Program
     {
+
+        private delegate double UnitConversion_t(double value);
         const int ViewPortWidth = 1440;
         const int ViewPortHeight = 900;
-
-
-        public static double cm2inch(double centimeters)
-        {
-            return centimeters * 0.393701;
-        }
         
 
-        public static void KillHeadless()
-        {
-            System.Diagnostics.Process[] allProcesses = System.Diagnostics.Process.GetProcesses();
-
-            for (int i = 0; i < allProcesses.Length; ++i)
-            {
-                var proc = allProcesses[i];
-                string commandLine = ProcessUtils.GetCommandLine(proc); // GetCommandLineOfProcess(proc);
-
-                if (string.IsNullOrEmpty(commandLine))
-                    continue;
-
-                commandLine = commandLine.ToLowerInvariant();
-
-                if (commandLine.IndexOf(@"\chrome.exe") == -1)
-                    continue;
-
-                if (commandLine.IndexOf(@"--headless") != -1)
-                {
-
-                    System.Console.WriteLine($"Killing process {proc.Id} with command line \"{commandLine}\"");
-                    ProcessUtils.KillProcessAndChildren(proc.Id);
-                }
-
-            } // Next i 
-
-            System.Console.WriteLine($"Finished killing headless chromes");
-        } // End Sub KillHeadless 
-        
 
         [System.STAThread]
         private static void NotMain(string[] args)
@@ -58,8 +27,8 @@ namespace SampleNet4
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
 #endif
-
-            KillHeadless();
+            Portal_Convert.CdpConverter.ChromiumBasedConverter.KillHeadlessChromes();
+            
 
             System.Threading.Tasks.Task2.Run(async () =>
             {
@@ -133,6 +102,11 @@ support@yourcompany.com</a>.
 </html>
 " }
                     );
+
+                    // private static double cm2inch(double centimeters) { return centimeters * 0.0393701; }
+                    UnitConversion_t cm2inch = delegate (double centimeters) { return centimeters * 0.393701; };
+                    // private static double mm2inch(double milimeters) { return milimeters * 0.0393701; }
+                    UnitConversion_t mm2inch = delegate (double milimeters) { return milimeters * 0.0393701; };
 
 
                     PrintToPDFCommand printCommand2 = new PrintToPDFCommand()

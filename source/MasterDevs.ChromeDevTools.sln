@@ -26,7 +26,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterDevs.ChromeDevTools.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterDevs.ChromeDevTools.Tests", "MasterDevs.ChromeDevTools.Tests\MasterDevs.ChromeDevTools.Tests.csproj", "{4CFEBA12-2ECB-4C17-9EA1-AD79C39EEA72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterDev.ChromeDevTools.DotNet4", "MasterDev.ChromeDevTools.DotNet4\MasterDev.ChromeDevTools.DotNet4.csproj", "{BD00C2F1-5909-43CC-9DD1-3DA587695B87}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MasterDevs.ChromeDevTools.DotNet4", "MasterDevs.ChromeDevTools.DotNet4\MasterDevs.ChromeDevTools.DotNet4.csproj", "{BD00C2F1-5909-43CC-9DD1-3DA587695B87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleNet4", "SampleNet4\SampleNet4.csproj", "{BC55E6B1-E3C1-4B7D-8754-95FA4E4A69AC}"
 EndProject
