@@ -7,8 +7,6 @@ using MasterDevs.ChromeDevTools.Protocol.Chrome.DOM;
 namespace SampleNet4 
 {
 
-    
-
 
     internal class Program
     {
@@ -18,13 +16,19 @@ namespace SampleNet4
         const int ViewPortHeight = 900;
 
 
+        internal class UnsafeNativeMethods
+        {
+            internal const string LIBC = "libc";
+
+            [System.Runtime.InteropServices.DllImport(LIBC, SetLastError = true)]
+            public static extern uint geteuid();
+        }
+
 
         public static bool IsAdministrator
         {
             get
             {
-
-
                 // return System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
                 if (System.Environment.OSVersion.Platform != System.PlatformID.Unix)
                 {
@@ -34,7 +38,7 @@ namespace SampleNet4
 
                 // Mono.Posix.NETStandard
                 // return Mono.Unix.Native.Syscall.geteuid() == 0;
-                return false;
+                return UnsafeNativeMethods.geteuid() == 0;
             }
         }
 
@@ -47,6 +51,8 @@ namespace SampleNet4
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
 #endif
+
+            System.Console.WriteLine(IsAdministrator);
             Portal_Convert.CdpConverter.ChromiumBasedConverter.KillHeadlessChromes();
             
 

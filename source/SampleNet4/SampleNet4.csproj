@@ -99,8 +99,9 @@
     </Compile>
     <Compile Include="Code\ProcessUtils.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Program2.cs" />
+    <Compile Include="ConverterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Trash\NativeMethods.cs" />
     <Compile Include="Trash\TrashBin.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

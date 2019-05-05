@@ -6,7 +6,7 @@ namespace SampleNet4
 {
 
 
-    class Program2
+    class ConverterTest
     {
 
 
