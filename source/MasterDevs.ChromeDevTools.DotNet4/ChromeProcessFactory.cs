@@ -75,7 +75,8 @@ namespace MasterDevs.ChromeDevTools
             if(IsRoot)
                 chromeProcessArgs.Add("--no-sandbox");
 
-            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo(ChromePath, string.Join(" ", chromeProcessArgs));
+            string args = string.Join(" ", chromeProcessArgs);
+            System.Diagnostics.ProcessStartInfo processStartInfo = new System.Diagnostics.ProcessStartInfo(ChromePath, args);
             System.Diagnostics.Process chromeProcess = System.Diagnostics.Process.Start(processStartInfo);
 
             string remoteDebuggingUrl = "http://localhost:" + port;

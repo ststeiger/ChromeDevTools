@@ -14,8 +14,7 @@ namespace Portal_Convert.CdpConverter
         private delegate double UnitConversion_t(double value);
 
 
-
-        public static void KillHeadlessChromes()
+        public static void KillHeadlessChromes(System.IO.TextWriter writer)
         {
             System.Diagnostics.Process[] allProcesses = System.Diagnostics.Process.GetProcesses();
 
@@ -42,31 +41,55 @@ namespace Portal_Convert.CdpConverter
 
                 if (commandLine.IndexOf(@"--headless", System.StringComparison.InvariantCultureIgnoreCase) != -1)
                 {
-                    System.Console.WriteLine($"Killing process {proc.Id} with command line \"{commandLine}\"");
+                    writer.WriteLine($"Killing process {proc.Id} with command line \"{commandLine}\"");
                     ProcessUtils.KillProcessAndChildren(proc.Id);
                 } // End if (commandLine.IndexOf(@"--headless") != -1)
 
             } // Next i 
 
-            System.Console.WriteLine($"Finished killing headless chromes");
+            writer.WriteLine($"Finished killing headless chromes");
         } // End Sub KillHeadless 
+        
+
+        public static void KillHeadlessChromes()
+        {
+            KillHeadlessChromes(System.Console.Out);
+        }
 
 
+        public static System.Collections.Generic.List<string> KillHeadlessChromesWeb()
+        {
+            System.Collections.Generic.List<string> ls = new System.Collections.Generic.List<string>();
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
+            using (System.IO.StringWriter sw = new System.IO.StringWriter(sb))
+            {
+                KillHeadlessChromes(sw);
+            } // End Using sw 
+
+            // "abc".Replace("\r\n", "\n").Replace("\r", "\n");
+            // "abc".Replace("" & vbCrLf, "" & vbLf).Replace("" & vbCr, "" & vbLf)
+            // "abc".Split(vbLf);
+            using (System.IO.TextReader tr = new System.IO.StringReader(sb.ToString()))
+            {
+                string thisLine = null;
+                while ((thisLine = tr.ReadLine()) != null)
+                {
+                    ls.Add(thisLine);
+                } // Whend 
+            } // End Using tr 
+
+            sb.Length = 0;
+            sb = null;
+
+            return ls;
+        } // End Function KillHeadlessChromesWeb 
 
 
         private static async System.Threading.Tasks.Task InternalConnect(ConnectionInfo ci, string remoteDebuggingUri)
         {
             ci.ChromeProcess = new RemoteChromeProcess(remoteDebuggingUri);
             ci.SessionInfo = await ci.ChromeProcess.StartNewSession();
-            /*
-            MasterDevs.ChromeDevTools.ChromeSessionInfo[] sessionInfos = await ci.ChromeProcess.GetSessionInfo();
-
-            ci.SessionInfo = (sessionInfos != null && sessionInfos.Length > 0) ?
-                sessionInfos[sessionInfos.Length - 1]
-                : await ci.ChromeProcess.StartNewSession()
-            ;
-            */
         } // End Function InternalConnect 
 
 
@@ -126,13 +149,9 @@ namespace Portal_Convert.CdpConverter
             Application.Run(new Form1());
 #endif
 
-            // http://localhost:9222/
-            // http://localhost:9222/json
-
-            string rcp = "http://localhost:9222";
             MasterDevs.ChromeDevTools.IChromeSessionFactory chromeSessionFactory = new MasterDevs.ChromeDevTools.ChromeSessionFactory();
 
-            using (ConnectionInfo connectionInfo = await ConnectToChrome(conversionData.ChromePath, rcp))
+            using (ConnectionInfo connectionInfo = await ConnectToChrome(conversionData.ChromePath, conversionData.RemoteDebuggingUri))
             {
                 MasterDevs.ChromeDevTools.IChromeSession chromeSession = chromeSessionFactory.Create(connectionInfo.SessionInfo.WebSocketDebuggerUrl);
 

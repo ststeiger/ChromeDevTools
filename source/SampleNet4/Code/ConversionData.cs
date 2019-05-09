@@ -9,7 +9,17 @@ namespace Portal_Convert.CdpConverter
     public class ConversionData
     {
         private static string s_chromePath;
+        public string RemoteDebuggingUrl { get; set; } = "http://localhost";
+        public uint RemoteDebuggingPort { get; set; } = 9222;
 
+        public string RemoteDebuggingUri
+        {
+            get {
+                return this.RemoteDebuggingUrl
+                    + ":"
+                    + this.RemoteDebuggingPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            }
+        }
 
 
         public ChromiumActions_t ChromiumActions { get; set; } = ChromiumActions_t.ConvertToImage;
@@ -17,8 +27,8 @@ namespace Portal_Convert.CdpConverter
         public int ViewPortWidth { get; set; } = 1024;
         public int ViewPortHeight { get; set; } = 768;
 
-        public double PageWidth { get; set; } = 21.0;
-        public double PageHeight { get; set; } = 29.7;
+        public double PageWidth { get; set; } = 210;
+        public double PageHeight { get; set; } = 297;
 
 
         public string Html { get; set; }
@@ -67,6 +77,7 @@ namespace Portal_Convert.CdpConverter
         }
 
         public ConversionData()
+            :this("")
         { }
 
 

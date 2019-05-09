@@ -13,7 +13,9 @@ Namespace Portal_Convert.CdpConverter
         Private Delegate Function UnitConversion_t(ByVal value As Double) As Double
 
 
-        Public Shared Sub KillHeadlessChromes()
+
+
+        Public Shared Sub KillHeadlessChromes(ByVal writer As System.IO.TextWriter)
             Dim allProcesses As System.Diagnostics.Process() = System.Diagnostics.Process.GetProcesses()
             Dim exeName As String = "\chrome.exe"
 
@@ -29,13 +31,46 @@ Namespace Portal_Convert.CdpConverter
                 If commandLine.IndexOf(exeName, System.StringComparison.InvariantCultureIgnoreCase) = -1 Then Continue For
 
                 If commandLine.IndexOf("--headless", System.StringComparison.InvariantCultureIgnoreCase) <> -1 Then
-                    System.Console.WriteLine($"Killing process {proc.Id} with command line ""{commandLine}""")
+                    writer.WriteLine($"Killing process {proc.Id} with command line ""{commandLine}""")
                     ProcessUtils.KillProcessAndChildren(proc.Id)
                 End If
             Next
 
-            System.Console.WriteLine($"Finished killing headless chromes")
+            writer.WriteLine($"Finished killing headless chromes")
         End Sub
+
+
+        Public Shared Sub KillHeadlessChromes()
+            KillHeadlessChromes(System.Console.Out)
+        End Sub
+
+
+        Private Shared Function __Assign(Of T)(ByRef target As T, value As T) As T
+            target = value
+            Return value
+        End Function
+
+
+        Public Shared Function KillHeadlessChromesWeb() As System.Collections.Generic.List(Of String)
+            Dim ls As System.Collections.Generic.List(Of String) = New System.Collections.Generic.List(Of String)()
+            Dim sb As System.Text.StringBuilder = New System.Text.StringBuilder()
+
+            Using sw As System.IO.StringWriter = New System.IO.StringWriter(sb)
+                KillHeadlessChromes(sw)
+            End Using
+
+            Using tr As System.IO.TextReader = New System.IO.StringReader(sb.ToString())
+                Dim thisLine As String = Nothing
+
+                While (__Assign(thisLine, tr.ReadLine())) IsNot Nothing
+                    ls.Add(thisLine)
+                End While
+            End Using
+
+            sb.Length = 0
+            sb = Nothing
+            Return ls
+        End Function
 
 
         Private Shared Async Function InternalConnect(ByVal ci As ConnectionInfo, ByVal remoteDebuggingUri As String) As System.Threading.Tasks.Task
@@ -82,29 +117,30 @@ Namespace Portal_Convert.CdpConverter
 
 
         Public Shared Async Function ConvertDataAsync(ByVal conversionData As ConversionData) As System.Threading.Tasks.Task
-            Dim rcp As String = "http://localhost:9222"
             Dim chromeSessionFactory As MasterDevs.ChromeDevTools.IChromeSessionFactory = New MasterDevs.ChromeDevTools.ChromeSessionFactory()
 
-            Using connectionInfo As ConnectionInfo = Await ConnectToChrome(conversionData.ChromePath, rcp)
+
+            Using connectionInfo As ConnectionInfo = Await ConnectToChrome(conversionData.ChromePath, conversionData.RemoteDebuggingUri)
                 Dim chromeSession As MasterDevs.ChromeDevTools.IChromeSession = chromeSessionFactory.Create(connectionInfo.SessionInfo.WebSocketDebuggerUrl)
+
                 Await chromeSession.SendAsync(New SetDeviceMetricsOverrideCommand With {
                     .Width = conversionData.ViewPortWidth,
                     .Height = conversionData.ViewPortHeight,
                     .Scale = 1
                 })
+
                 Dim navigateResponse As MasterDevs.ChromeDevTools.CommandResponse(Of NavigateCommandResponse) = Await chromeSession.SendAsync(New NavigateCommand With {
                     .Url = "about:blank"
                 })
+
                 System.Console.WriteLine("NavigateResponse: " & navigateResponse.Id)
                 Dim setContentResponse As MasterDevs.ChromeDevTools.CommandResponse(Of SetDocumentContentCommandResponse) = Await chromeSession.SendAsync(New SetDocumentContentCommand() With {
                     .FrameId = navigateResponse.Result.FrameId,
                     .Html = conversionData.Html
                 })
+
                 Dim cm2inch As UnitConversion_t = Function(ByVal centimeters As Double) centimeters * 0.393701
                 Dim mm2inch As UnitConversion_t = Function(ByVal milimeters As Double) milimeters * 0.0393701
-
-                ' .PaperWidth = cm2inch(conversionData.PageWidth),
-                ' .PaperHeight = cm2inch(conversionData.PageHeight)
 
                 Dim printCommand2 As PrintToPDFCommand = New PrintToPDFCommand() With {
                     .Scale = 1,
@@ -115,8 +151,12 @@ Namespace Portal_Convert.CdpConverter
                     .PrintBackground = True,
                     .Landscape = False,
                     .PaperWidth = mm2inch(conversionData.PageWidth),
-                    .PaperHeight = mm2inch(conversionData.PageHeight)
+                    .PaperHeight = mm2inch(conversionData.PageHeight) ' 
                 }
+
+                '.PaperWidth = cm2inch(conversionData.PageWidth),
+                '.PaperHeight = cm2inch(conversionData.PageHeight)
+
 
                 If conversionData.ChromiumActions.HasFlag(ChromiumActions_t.GetVersion) Then
 
@@ -158,7 +198,10 @@ Namespace Portal_Convert.CdpConverter
                         System.Diagnostics.Debug.WriteLine(ex.Message)
                     End Try
                 End If
+
             End Using
+
+
         End Function
 
 

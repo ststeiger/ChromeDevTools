@@ -9,11 +9,23 @@ Namespace Portal_Convert.CdpConverter
 
 
         Private Shared s_chromePath As String
+
+        Public Property RemoteDebuggingUrl As String = "http://localhost"
+        Public Property RemoteDebuggingPort As UInteger = 9222
+
+        Public ReadOnly Property RemoteDebuggingUri As String
+            Get
+                Return Me.RemoteDebuggingUrl + ":" + Me.RemoteDebuggingPort.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            End Get
+        End Property
+
+
+
         Public Property ChromiumActions As ChromiumActions_t = ChromiumActions_t.ConvertToImage
         Public Property ViewPortWidth As Integer = 1024
         Public Property ViewPortHeight As Integer = 768
-        Public Property PageWidth As Double = 21.0
-        Public Property PageHeight As Double = 29.7
+        Public Property PageWidth As Double = 210
+        Public Property PageHeight As Double = 297
         Public Property Html As String
         Public Property Exception As System.Exception
         Public Property PngData As Byte()
@@ -50,6 +62,7 @@ Namespace Portal_Convert.CdpConverter
 
 
         Public Sub New()
+            Me.New("")
         End Sub
 
 

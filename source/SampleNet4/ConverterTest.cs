@@ -15,6 +15,7 @@ namespace SampleNet4
         {
             // ProcessExtensions.Test();
             // Trash.Piping.ReadLibs();
+            
             ChromiumBasedConverter.KillHeadlessChromes();
 
 
@@ -26,7 +27,7 @@ namespace SampleNet4
             conversionData.ViewPortHeight = 4850;
 
 
-            conversionData.ChromiumActions = ChromiumActions_t.ConvertToImage | ChromiumActions_t.ConvertToPdf;
+            conversionData.ChromiumActions = ChromiumActions_t.ConvertToImage | ChromiumActions_t.ConvertToPdf | ChromiumActions_t.GetVersion;
 
             //  width="264px" height="115.167401087568px" 
             conversionData.ViewPortWidth = 264;
@@ -49,12 +50,34 @@ namespace SampleNet4
 
 
             ChromiumBasedConverter.ConvertData(conversionData);
+            
+            if (conversionData.Version != null)
+            {
+                System.Console.Write("Product: ");
+                System.Console.WriteLine(conversionData.Version.Product);
+                System.Console.Write("JsVersion: ");
+                System.Console.WriteLine(conversionData.Version.JsVersion);
+                System.Console.Write("UserAgent: ");
+                System.Console.WriteLine(conversionData.Version.UserAgent);
+                System.Console.Write("Revision: ");
+                System.Console.WriteLine(conversionData.Version.Revision);
+                System.Console.Write("ProtocolVersion: ");
+                System.Console.WriteLine(conversionData.Version.ProtocolVersion);
+            }
 
             if (conversionData.PngData != null)
+            {
+                System.Console.WriteLine("Writing png data");
                 System.IO.File.WriteAllBytes("output.png", conversionData.PngData);
+                System.Console.WriteLine("Wrote PNG data");
+            }
 
             if (conversionData.PdfData != null)
+            {
+                System.Console.WriteLine("Writing PDF data");
                 System.IO.File.WriteAllBytes("output.pdf", conversionData.PdfData);
+                System.Console.WriteLine("Wrote PDF data");
+            }
 
             System.Console.WriteLine(System.Environment.NewLine);
             System.Console.WriteLine(" --- Press any key to continue --- ");
