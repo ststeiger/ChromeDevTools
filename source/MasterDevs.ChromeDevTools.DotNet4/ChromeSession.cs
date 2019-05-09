@@ -342,7 +342,9 @@ namespace MasterDevs.ChromeDevTools
                 HandleEvent(evnt);
                 return;
             }
-            throw new Exception("Don't know what to do with response: " + e.Message);
+
+            // Just ignore
+            // throw new Exception("Don't know what to do with response: " + e.Message);
         }
 
         private void WebSocket_Opened(object sender, EventArgs e)

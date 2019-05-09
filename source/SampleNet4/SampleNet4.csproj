@@ -86,6 +86,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="20minVoter.cs" />
     <Compile Include="Code\ChromiumActions_t.cs" />
     <Compile Include="Code\ChromiumBasedConverter.cs" />
     <Compile Include="Code\ConnectionInfo.cs" />

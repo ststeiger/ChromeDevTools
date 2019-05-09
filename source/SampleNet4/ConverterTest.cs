@@ -6,6 +6,70 @@ namespace SampleNet4
 {
 
 
+
+    public class WebClientEx 
+        : System.Net.WebClient
+    {
+        public WebClientEx(System.Net.CookieContainer container)
+        {
+            this.container = container;
+
+            this.Headers.Add("Accept-Language", "de-CH,de;q=0.9");
+            this.Headers.Add("pragma", "no-cache");
+            this.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36");
+        }
+
+
+        public WebClientEx()
+            :this(new System.Net.CookieContainer())
+        { }
+
+
+        public System.Net.CookieContainer CookieContainer
+        {
+            get { return container; }
+            set { container = value; }
+        }
+
+        private System.Net.CookieContainer container = new System.Net.CookieContainer();
+
+        protected override System.Net.WebRequest GetWebRequest(System.Uri address)
+        {
+            System.Net.WebRequest r = base.GetWebRequest(address);
+            System.Net.HttpWebRequest request = r as System.Net.HttpWebRequest;
+            if (request != null)
+            {
+                request.CookieContainer = container;
+            }
+            return r;
+        }
+
+        protected override System.Net.WebResponse GetWebResponse(System.Net.WebRequest request, System.IAsyncResult result)
+        {
+            System.Net.WebResponse response = base.GetWebResponse(request, result);
+            ReadCookies(response);
+            return response;
+        }
+
+        protected override System.Net.WebResponse GetWebResponse(System.Net.WebRequest request)
+        {
+            System.Net.WebResponse response = base.GetWebResponse(request);
+            ReadCookies(response);
+            return response;
+        }
+
+        private void ReadCookies(System.Net.WebResponse r)
+        {
+            System.Net.HttpWebResponse response = r as System.Net.HttpWebResponse;
+            if (response != null)
+            {
+                System.Net.CookieCollection cookies = response.Cookies;
+                container.Add(cookies);
+            }
+        }
+    }
+
+
     class ConverterTest
     {
 
@@ -13,9 +77,11 @@ namespace SampleNet4
         [System.STAThread]
         private static void Main(string[] args)
         {
+            SampleNet4.Program.NotMain(args);
+
             // ProcessExtensions.Test();
             // Trash.Piping.ReadLibs();
-            
+
             ChromiumBasedConverter.KillHeadlessChromes();
 
 

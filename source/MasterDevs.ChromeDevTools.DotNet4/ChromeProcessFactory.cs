@@ -69,6 +69,19 @@ namespace MasterDevs.ChromeDevTools
                 "--no-first-run"
             };
 
+
+            if (false)
+            {
+                string proxyProtocol = "socks5";
+                proxyProtocol = "http";
+                proxyProtocol = "https";
+                string proxyIP = "68.183.233.181";
+                string proxyPort = "3128";
+                string proxyArg = "--proxy-server=\"" + proxyProtocol + "://" + proxyIP + ":" + proxyPort + "\"";
+                chromeProcessArgs.Add(proxyArg);
+            }
+
+
             if (headless)
                 chromeProcessArgs.Add(headlessArg);
 
