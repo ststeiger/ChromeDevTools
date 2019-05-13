@@ -2,7 +2,7 @@
 using MasterDevs.ChromeDevTools;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.Browser;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.Page;
-
+using MasterDevs.ChromeDevTools.Protocol.Chrome.Target;
 
 namespace Portal_Convert.CdpConverter
 {
@@ -183,6 +183,9 @@ namespace Portal_Convert.CdpConverter
                 );
 
 
+                
+
+
                 // private static double cm2inch(double centimeters) { return centimeters * 0.0393701; }
                 UnitConversion_t cm2inch = delegate (double centimeters) { return centimeters * 0.393701; };
                 // private static double mm2inch(double milimeters) { return milimeters * 0.0393701; }
@@ -279,23 +282,37 @@ namespace Portal_Convert.CdpConverter
                 } // End if (conversionData.ChromiumActions.HasFlag(ChromiumActions_t.ConvertToPdf)) 
 
 
-
-#if false // NOT_HEADLESS
                 System.Console.WriteLine("Closing page");
-                MasterDevs.ChromeDevTools.CommandResponse<CloseTargetCommandResponse> closeTargetResponse =
-                    await chromeSession.SendAsync(
-                    new CloseTargetCommand()
-                    {
-                        TargetId = navigateResponse.Result.FrameId
-                    }
-                );
+                await ClosePage(chromeSession, navigateResponse.Result.FrameId, true);
                 System.Console.WriteLine("Page closed");
-                System.Console.WriteLine(closeTargetResponse);
-#endif
 
-            } // End Using remoteChromeProcess 
+            } // End Using connectionInfo 
 
         } // End Sub ConvertDataAsync  
+
+
+        
+        private static async System.Threading.Tasks.Task ClosePage(MasterDevs.ChromeDevTools.IChromeSession chromeSession, string frameId, bool headLess)
+        {
+            System.Threading.Tasks.Task<MasterDevs.ChromeDevTools.CommandResponse<CloseTargetCommandResponse>> closeTargetTask = chromeSession.SendAsync(
+                new CloseTargetCommand()
+                {
+                    TargetId = frameId
+                }
+            );
+
+            // await will block forever if headless    
+            if (!headLess)
+            {
+                MasterDevs.ChromeDevTools.CommandResponse<CloseTargetCommandResponse> closeTargetResponse = await closeTargetTask;
+                System.Console.WriteLine(closeTargetResponse);
+            }
+            else
+            {
+                System.Console.WriteLine(closeTargetTask);
+            }
+
+        } // End Task ClosePage 
 
 
         public static void ConvertData(ConversionData conversionData)
@@ -304,7 +321,7 @@ namespace Portal_Convert.CdpConverter
         } // End Sub ConvertData 
 
 
-    }
+    } // End Class ChromiumBasedConverter 
 
 
 }

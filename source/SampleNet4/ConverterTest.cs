@@ -77,7 +77,7 @@ namespace SampleNet4
         [System.STAThread]
         private static void Main(string[] args)
         {
-            SampleNet4.Program.NotMain(args);
+            // SampleNet4.Program.NotMain(args);
 
             // ProcessExtensions.Test();
             // Trash.Piping.ReadLibs();

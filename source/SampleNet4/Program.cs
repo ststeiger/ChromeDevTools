@@ -6,6 +6,7 @@ using MasterDevs.ChromeDevTools.Protocol.Chrome.Runtime;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.Network;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.IndexedDB;
 using MasterDevs.ChromeDevTools.Protocol.Chrome.Storage;
+using MasterDevs.ChromeDevTools.Protocol.Chrome.Target;
 
 namespace SampleNet4 
 {
@@ -68,7 +69,7 @@ namespace SampleNet4
 #endif
 
             System.Console.WriteLine(IsAdministrator);
-            Portal_Convert.CdpConverter.ChromiumBasedConverter.KillHeadlessChromes();
+            // Portal_Convert.CdpConverter.ChromiumBasedConverter.KillHeadlessChromes();
 
             System.Threading.Tasks.Task2.Run(runVote).Wait();
 
@@ -87,7 +88,7 @@ namespace SampleNet4
 
             // STEP 1 - Run Chrome
             IChromeProcessFactory chromeProcessFactory = new ChromeProcessFactory(new StubbornDirectoryCleaner());
-            using (IChromeProcess chromeProcess = chromeProcessFactory.Create(9222, false))
+            using (IChromeProcess chromeProcess = chromeProcessFactory.Create(9222, true))
             {
                 // STEP 2 - Create a debugging session
                 ChromeSessionInfo[] sessionInfos = await chromeProcess.GetSessionInfo();
@@ -179,16 +180,63 @@ namespace SampleNet4
         one.click();
     }, 2000);
 
-
+/*
 window.setTimeout(function(){ 
         window.close();
     }, 4000);
+*/
     ",
                         // ContextId = 123
                     });
-                    
-                    
-                    if (true)
+
+
+                        
+                        CommandResponse<EvaluateCommandResponse> closeWindow = await chromeSession.SendAsync(new EvaluateCommand
+                        {
+                            // <a href="javascript:window.close(self);">run</a>
+                            Expression = @"
+console.log('closing');
+var a = document.createElement('a');
+var linkText = document.createTextNode('T');
+a.id = 'lolz';
+a.appendChild(linkText);
+a.href = 'javascript:window.close(self);';
+document.body.appendChild(a);
+document.getElementById('lolz').click();
+// window.close();
+// open(location, '_self').close();
+"
+                            // ContextId = 123
+                            ,
+                            UserGesture = true
+                        });
+                        System.Console.WriteLine(closeWindow.Result);
+
+
+
+                        System.Console.WriteLine("Closing page");
+                        var closeTargetResponse = chromeSession.SendAsync(
+                            new CloseTargetCommand()
+                            {
+                                TargetId = navigateResponse.Result.FrameId
+                            }
+                        );
+
+                        /*
+                        MasterDevs.ChromeDevTools.CommandResponse<CloseTargetCommandResponse> closeTargetResponse =
+                            await chromeSession.SendAsync(
+                            new CloseTargetCommand()
+                            {
+                                TargetId = navigateResponse.Result.FrameId
+                            }
+                        );
+                        */
+                        System.Console.WriteLine("Page closed");
+                        System.Console.WriteLine(closeTargetResponse);
+
+
+
+                        if (true)
                     {
                         // document.querySelector("#thread3367_msg3367 > div.rate_button > div.clickable.top").click()
                         // document.querySelector("#thread3367_msg3367 > div.rate_button > div.clickable.bottom").click()

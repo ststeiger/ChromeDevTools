@@ -2,7 +2,7 @@
 Imports MasterDevs.ChromeDevTools
 Imports MasterDevs.ChromeDevTools.Protocol.Chrome.Browser
 Imports MasterDevs.ChromeDevTools.Protocol.Chrome.Page
-
+Imports MasterDevs.ChromeDevTools.Protocol.Chrome.Target
 
 Namespace Portal_Convert.CdpConverter
 
@@ -116,6 +116,21 @@ Namespace Portal_Convert.CdpConverter
         End Function
 
 
+        Private Shared Async Function ClosePage(ByVal chromeSession As MasterDevs.ChromeDevTools.IChromeSession, ByVal frameId As String, ByVal headLess As Boolean) As System.Threading.Tasks.Task
+            Dim closeTargetTask As System.Threading.Tasks.Task(Of MasterDevs.ChromeDevTools.CommandResponse(Of CloseTargetCommandResponse)) = chromeSession.SendAsync(New CloseTargetCommand() With {
+                .TargetId = frameId
+            })
+
+            ' await will block forever if headless    
+            If Not headLess Then
+                Dim closeTargetResponse As MasterDevs.ChromeDevTools.CommandResponse(Of CloseTargetCommandResponse) = Await closeTargetTask
+                System.Console.WriteLine(closeTargetResponse)
+            Else
+                System.Console.WriteLine(closeTargetTask)
+            End If
+        End Function
+
+
         Public Shared Async Function ConvertDataAsync(ByVal conversionData As ConversionData) As System.Threading.Tasks.Task
             Dim chromeSessionFactory As MasterDevs.ChromeDevTools.IChromeSessionFactory = New MasterDevs.ChromeDevTools.ChromeSessionFactory()
 
@@ -199,10 +214,14 @@ Namespace Portal_Convert.CdpConverter
                     End Try
                 End If
 
-            End Using
 
+                System.Console.WriteLine("Closing page")
+                Await ClosePage(chromeSession, navigateResponse.Result.FrameId, True)
+                System.Console.WriteLine("Page closed")
 
-        End Function
+            End Using ' connectionInfo
+
+        End Function ' ConvertDataAsync
 
 
         Public Shared Sub ConvertData(ByVal conversionData As ConversionData)
