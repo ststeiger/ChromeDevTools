@@ -77,6 +77,7 @@ namespace SampleNet4
         [System.STAThread]
         private static void Main(string[] args)
         {
+            abc.foo();
             // SampleNet4.Program.NotMain(args);
 
             // ProcessExtensions.Test();

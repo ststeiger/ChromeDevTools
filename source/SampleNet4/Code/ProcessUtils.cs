@@ -4,6 +4,36 @@ namespace Portal_Convert.CdpConverter
 
     internal class WindowsProcess
     {
+
+        [System.Runtime.InteropServices.DllImport("ProcCmdLine32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, EntryPoint = "GetProcCmdLine")]
+        private extern static bool GetProcCmdLine32(uint nProcId, System.Text.StringBuilder sb, uint dwSizeBuf);
+
+        [System.Runtime.InteropServices.DllImport("ProcCmdLine64.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode, EntryPoint = "GetProcCmdLine")]
+        private extern static bool GetProcCmdLine64(uint nProcId, System.Text.StringBuilder sb, uint dwSizeBuf);
+        
+
+
+        public static string GetCommandLineByMissingDll(System.Diagnostics.Process proc)
+        {
+            string retValue = null;
+
+            // max size of a command line is USHORT/sizeof(WCHAR), so we are going
+            // just allocate max USHORT for sanity's sake.
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(0xFFFF); // 65535
+            switch (System.IntPtr.Size)
+            {
+                case 4: GetProcCmdLine32((uint)proc.Id, sb, (uint)sb.Capacity); break;
+                case 8: GetProcCmdLine64((uint)proc.Id, sb, (uint)sb.Capacity); break;
+            }
+
+            retValue = sb.ToString();
+            sb.Length = 0;
+            sb = null;
+
+            return retValue;
+        }
+
+
         // Define an extension method for type System.Process that returns the command 
         // line via WMI.
         public static string GetCommandLine(System.Diagnostics.Process process)
@@ -32,6 +62,7 @@ namespace Portal_Convert.CdpConverter
                 var dummy = process.MainModule; // Provoke exception.
             }
             */
+
             return cmdLine;
         } // End Function GetCommandLine 
 
@@ -76,7 +107,7 @@ namespace Portal_Convert.CdpConverter
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
                 FileName = "taskkill",
-                Arguments = $"/im {imageName} /f /t",
+                Arguments = "/im " + imageName + " /f /t",
                 CreateNoWindow = true,
                 UseShellExecute = false
             }).WaitForExit();
@@ -92,7 +123,7 @@ namespace Portal_Convert.CdpConverter
 
         public static string GetCommandLine(System.Diagnostics.Process process)
         {
-            string file = $"/proc/{process.Id}/cmdline";
+            string file = "/proc/" + process.Id.ToString(System.Globalization.CultureInfo.InvariantCulture) + "/cmdline";
 
             if (!System.IO.File.Exists(file))
                 return "";
@@ -112,7 +143,11 @@ namespace Portal_Convert.CdpConverter
         {
             // https://stackoverflow.com/questions/392022/whats-the-best-way-to-send-a-signal-to-all-members-of-a-process-group
             // kill  -TERM -PID
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("kill", $"-TERM -{pid}"));
+            System.Diagnostics.Process.Start(
+                  new System.Diagnostics.ProcessStartInfo("kill", "-TERM -" 
+                + pid.ToString(System.Globalization.CultureInfo.InvariantCulture) 
+                )
+            );
         } // End Sub KillProcessAndChildren 
 
 

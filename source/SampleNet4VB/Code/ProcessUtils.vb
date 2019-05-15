@@ -3,6 +3,38 @@ Namespace Portal_Convert.CdpConverter
 
 
     Friend Class WindowsProcess
+
+
+        ' <System.Runtime.InteropServices.DllImport("ProcCmdLine32.dll", CharSet:=System.Runtime.InteropServices.CharSet.Unicode, EntryPoint:="GetProcCmdLine")>
+        ' Private Shared Function GetProcCmdLine32(nProcId As UInteger, sb As System.Text.StringBuilder, dwSizeBuf As UInteger) As Boolean
+        ' End Function
+
+        ' <System.Runtime.InteropServices.DllImport("ProcCmdLine64.dll", CharSet:=System.Runtime.InteropServices.CharSet.Unicode, EntryPoint:="GetProcCmdLine")>
+        ' Private Shared Function GetProcCmdLine64(nProcId As UInteger, sb As System.Text.StringBuilder, dwSizeBuf As UInteger) As Boolean
+        ' End Function
+
+        Private Declare Function GetProcCmdLine32 Lib "ProcCmdLine32.dll" Alias "GetProcCmdLine" (ByVal nProcId As UInteger, ByVal sb As System.Text.StringBuilder, ByVal dwSizeBuf As UInteger) As Boolean
+        Private Declare Function GetProcCmdLine64 Lib "ProcCmdLine64.dll" Alias "GetProcCmdLine" (ByVal nProcId As UInteger, ByVal sb As System.Text.StringBuilder, ByVal dwSizeBuf As UInteger) As Boolean
+
+
+        Public Shared Function GetCommandLineByMissingDll(ByVal proc As System.Diagnostics.Process) As String
+            Dim retValue As String = Nothing
+            Dim sb As System.Text.StringBuilder = New System.Text.StringBuilder(&HFFFF)
+
+            Select Case System.IntPtr.Size
+                Case 4
+                    GetProcCmdLine32(CUInt(proc.Id), sb, CUInt(sb.Capacity))
+                Case 8
+                    GetProcCmdLine64(CUInt(proc.Id), sb, CUInt(sb.Capacity))
+            End Select
+
+            retValue = sb.ToString()
+            sb.Length = 0
+            sb = Nothing
+            Return retValue
+        End Function
+
+
         Public Shared Function GetCommandLine(ByVal process As System.Diagnostics.Process) As String
             Dim cmdLine As String = Nothing
 
