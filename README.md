@@ -44,7 +44,7 @@ I've included a code example.  [Check it out](source/Sample/Program.cs) and read
 The Chrome Developer Tools have a pretty cool API.  There are 2 basic types of objects that the Developer Tools understand:
   * Events
     * These events will only be received by you
-    * The are events triggered by page events, network events, the DOM, or something else.
+    * These events are triggered by page events, network events, the DOM, or something else.
     * You can tell Chrome to enable, or disable, domain events using ... commands (_keep reading_)
   * Commands
     * A command is an object that you will send to the Developer Tools.  This command will generate a response (or an error response).
@@ -66,7 +66,7 @@ If you didn't read the entire README (I don't blame you, I wouldn't), I've inclu
 
   * [NuGet](https://www.nuget.org/packages/MasterDevs.ChromeDevTools/)
   * Obligatory [blog post](http://blog.masterdevs.com/chrome-debugging-api/)
-  * [Protocol Viewier](http://chromedevtools.github.io/debugger-protocol-viewer/)
+  * [Protocol Viewer](http://chromedevtools.github.io/debugger-protocol-viewer/)
   * Here's what the Chrome Team has to say about the Developer Tools protocol
     * [https://developer.chrome.com/devtools/docs/debugger-protocol](https://developer.chrome.com/devtools/docs/debugger-protocol)
   * Some cool apps that other developers have built using the Chrome Debugging Protocol
