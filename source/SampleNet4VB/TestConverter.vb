@@ -6,35 +6,8 @@ Namespace SampleNet4VB
 
 
     Public Class TestConverter
-        
-        
-        ' https://stackoverflow.com/questions/8869065/program-to-convert-time-in-seconds-to-hhmmss-format
-        Function FormatSeconds(ByVal oseconds As object) As String
-            If oseconds Is Nothing OrElse oseconds Is System.DbNull.Value Then
-                Return ""
-            End If
-            
-            
-            
-            Dim iSeconds As Integer = CInt(oseconds)
-            
-            Dim tspan As System.TimeSpan = System.TimeSpan.FromSeconds(iSeconds)
-            Dim retValue As String = ""
-            
-            retValue += tspan.Days.ToString().PadLeft(2, "0"c)
-            retValue+=":"
-            retValue += tspan.Hours.ToString().PadLeft(2, "0"c)
-            retValue+=":"
-            retValue += tspan.Minutes.ToString().PadLeft(2, "0"c)
-            retValue+=":"
-            retValue += tspan.Seconds.ToString().PadLeft(2, "0"c)
-            
-            Return retValue
-        End Sub
 
-    
-    
-    
+
         <System.STAThread>
         Public Shared Sub Test()
             ChromiumBasedConverter.KillHeadlessChromes()
