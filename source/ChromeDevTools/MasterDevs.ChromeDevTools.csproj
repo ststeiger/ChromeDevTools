@@ -38,10 +38,6 @@
     <AssemblyOriginatorKeyFile>MasterDevs.ChromeDevTools.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http">
@@ -60,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChromeProcessFactory.cs" />
+    <Compile Include="ChromeProcessFactoryHelper.cs" />
     <Compile Include="IDirectoryCleaner.cs" />
     <Compile Include="LocalChromeProcess.cs" />
     <Compile Include="ChromeSession.cs" />

@@ -323,10 +323,67 @@ namespace MasterDevs.ChromeDevTools
             throw new Exception("Don't know what to do with response: " + e.Data);
         }
 
+
         private void WebSocket_Error(object sender, SuperSocket.ClientEngine.ErrorEventArgs e)
         {
-            throw e.Exception;
+            // This causes IIS to crash ? 
+            // throw e.Exception;
+
+            try
+            {
+                KillChrome();
+            }
+            catch (System.Exception)
+            { }
+
+            try
+            {
+                string logfile = System.AppDomain.CurrentDomain.BaseDirectory;
+                logfile = System.IO.Path.Combine(logfile, "Exceptions.txt");
+
+                System.IO.File.AppendAllText(logfile, "\r\n\r\n\r\n\r\n", System.Text.Encoding.UTF8);
+
+                System.IO.File.AppendAllText(logfile, e.Exception.Message, System.Text.Encoding.UTF8);
+                System.IO.File.AppendAllText(logfile, "\r\n\r\n", System.Text.Encoding.UTF8);
+                System.IO.File.AppendAllText(logfile, e.Exception.StackTrace, System.Text.Encoding.UTF8);
+                System.IO.File.AppendAllText(logfile, "\r\n\r\n", System.Text.Encoding.UTF8);
+                System.IO.File.AppendAllText(logfile, e.Exception.ToString(), System.Text.Encoding.UTF8);
+                System.IO.File.AppendAllText(logfile, "\r\n\r\n", System.Text.Encoding.UTF8);
+            }
+            catch (System.Exception)
+            { }
+
         }
+
+
+
+        public string KillChrome()
+        {
+            // Return System.Web.HttpContext.Current.Server.MapPath("~")
+            // Return GetType(Converter).Assembly.Location
+            string s = System.Environment.MachineName + ": ";
+            s += "taskkill /F /IM chrome.exe";
+
+            // taskkill /F /IM chrome.exe
+            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo();
+            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            startInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+            startInfo.FileName = "taskkill.exe";
+            startInfo.Arguments = "/F /IM chrome.exe";
+
+            using (System.Diagnostics.Process exeProcess = System.Diagnostics.Process.Start(startInfo))
+            {
+                s += exeProcess.StandardOutput.ReadToEnd();
+                s += exeProcess.StandardError.ReadToEnd();
+                exeProcess.WaitForExit();
+            }
+
+            return s;
+        }
+
 
         private void WebSocket_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
